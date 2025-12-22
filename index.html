@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uncovering Conceptual Blindspots in Generative Image Models Using Sparse Autoencoders</title>
+    <meta name="description" content="A systematic framework for identifying and characterizing conceptual blindspots in generative image models using sparse autoencoders.">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="robots" content="all">
+    <meta content="en_EN" property="og:locale">
+    <meta content="website" property="og:type">
+    <meta content="https://example.com/conceptual-blindspots" property="og:url">
+    <meta content="Uncovering Conceptual Blindspots in Generative Image Models Using Sparse Autoencoders" property="og:title">
+    <meta content="A systematic framework for identifying and characterizing conceptual blindspots in generative image models" property="og:description">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@your_twitter_id">
+    <meta name="twitter:description" content="Uncovering Conceptual Blindspots in Generative Image Models Using Sparse Autoencoders">
+    <meta name="twitter:image:src" content="assets/figures/teaser.png">
+    
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/main_free.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="clarity/clarity.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/foundation.min.css">
+    <link href="assets/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/index.js"></script>
+    <script src="assets/scripts/navbar.js"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            "HTML-CSS": {
+              scale: 95,
+              fonts: ["Gyre-Pagella"],
+              imageFont: null,
+              undefinedFamily: "'Arial Unicode MS', cmbright"
+            },
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+              }
+          });
+    </script>
+    <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        .fillable svelte-n2mxwf app {
+           padding: 0 !important; 
+        }
+    </style>
+</head>
+
+<body onload="if (document.activeElement) document.activeElement.blur();">
+
+    <script>
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
+        });
+    </script>
+
+    <!-- Title Page -->
+    <div class="container blog" id="first-content" style="background-color: #E0E4E6;">
+        <div class="blog-title">
+            <div class="blog-intro">
+                <div>
+                    <h1 class="title" style="font-weight: 800;"><b style="font-weight: 800;">LouvreSAE: Sparse Autoencoders for Interpretable and Controllable Style Transfer</b></h1>
+                    <p class="author">
+                        <a href="https://scholar.google.com/citations?user=cvx3n_sAAAAJ">Raina Panda</a> <sup>1</sup>, <a href="https://scholar.google.com/citations?user=pHxb_dAAAAAJ">Daniel Fein</a> <sup>2</sup>, <a href="https://scholar.google.com/citations?user=T06mh9MAAAAJ">Arpita Singhal</a> <sup>2</sup>, <a href="http://www.markfiore.com">Mark Fiore</a> <sup>2</sup>, <a href="https://graphics.stanford.edu/~maneesh/">Maneesh Agrawala</a> <sup>2</sup>, and <a href="https://www.matyasbohacek.com">Maty Bohacek</a> <sup>2</sup>
+                    </p>
+                    <p class="author" style="padding-top: 0px;">
+                        <sup>1</sup> Washington High School   <sup>2</sup> Stanford University <br>
+                    </p>
+                    <p class="abstract">
+                        We introduce LouvreSAE, an interpretable style representation and style transfer method that utilizes sparse autoencoders to decompose style into steerable concepts like brushwork and texture. By constructing "style profiles" from recurring activations, our approach injects aesthetic attributes directly into pre-trained diffusion models without fine-tuning. Validations on ArtBench10 show LouvreSAE outperforms SOTA baselines on style fidelity while offering granular control and 1.7-20x faster inference.
+                    </p>
+
+                    <div class="info">
+                        <div>
+                            <a href="" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">Paper <i class="fa-solid fa-book-open"></i></a> &nbsp;&nbsp; 
+                            <a href="" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">Code <i class="fa-solid fa-code"></i></a>  &nbsp;&nbsp; 
+                            <a href="" class="button icon" style="background-color: rgba(255, 255, 255, 0.2);">Demo <i class="fa-solid fa-globe"></i></a> &nbsp;&nbsp; 
+                            <a href="" class="button icon" style="background-color: rgba(255, 255, 255, 0.2);">Models <i class="fa-solid fa-database"></i></a> &nbsp;&nbsp; 
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="blog-cover" style="width: 100% !important;">
+                <img src="assets/figures/main.png">
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Introduction -->
+    <div class="container blog main first" id="blog-main">
+        <h1>Introduction</h1>
+        <p class="text">
+            Artistic style transfer in generative models remains a significant challenge. Existing methods often introduce style via model fine-tuning, additional adapters, or prompt engineering—all computationally expensive approaches that may still entangle style with subject matter. We introduce <strong>LouvreSAE</strong>, a training- and inference-light, interpretable method for representing and transferring artistic style.
+        </p>
+
+        <p class="text">
+            Our approach leverages art-specific Sparse Autoencoders (SAEs) on top of latent embeddings of generative image models. Trained on artistic data, our SAE learns an emergent, largely disentangled set of stylistic and compositional concepts—corresponding to style-related elements like brushwork, texture, and color palette, as well as semantic and structural concepts.
+        </p>
+    </div>
+
+    <!-- Key Takeaways -->
+    <div class="container blog main">
+        <h2>Key Insights</h2>
+        <p class="text">
+            Our research demonstrates three key insights:
+        </p>
+        
+        <ul style="margin-left: 2em; margin-top: 1em;">
+            <li style="margin-bottom: 1em;"><strong>Existing embeddings contain rich style information.</strong> Pre-trained image model embeddings already encode sufficient information about artistic style. Through careful interpretation and steering, we can unlock efficient style representation and transfer without additional training.</li>
+            
+            <li style="margin-bottom: 1em;"><strong>Operational definition enables style profiles.</strong> By defining style as recurring activation patterns across semantically diverse images, we can create compact, decomposable "style profiles" that capture an artist's unique aesthetic.</li>
+            
+            <li style="margin-bottom: 1em;"><strong>State-of-the-art performance with efficiency.</strong> We train and open-source a collection of SAEs for CLIP, achieving state-of-the-art style transfer results at 1.7-20× less computational demand than existing methods.</li>
+        </ul>
+    </div>
+
+    <!-- SAE Training and Concept Discovery -->
+    <div class="container blog main">
+        <h1>Discovering Style Concepts</h1>
+        <p class="text">
+            We train Sparse Autoencoders on artistic image embeddings to decompose dense representations into interpretable, disentangled features. Our SAEs learn an emergent taxonomy of artistic concepts spanning multiple dimensions: from low-level properties like texture and color to high-level aesthetic styles and compositional patterns.
+        </p>
+
+        <p class="text">
+            Below we showcase discovered concepts from LouvreSAE, each with its autointerpretability label, category, a prototype visualization (showing the concept steered on a simple shape), and representative exemplars that strongly activate that concept.
+        </p>
+    </div>
+
+    <!-- Concept Examples - Slide Display -->
+    <div class="container blog extra-large gray">
+        <div class="slide-menu">
+            <ul class="dots" id="concept-slides">
+                <li class="dot active"></li>
+                <li class="dot"></li>
+                <li class="dot"></li>
+                <li class="dot"></li>
+            </ul>
+        </div>
+
+        <!-- Slide 1: Surreal Volumetric Curvature & Watercolor -->
+        <div class="slide-content" style="display: block;">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; border: none !important;">
+                    <thead style="border: none !important; border-bottom: none !important;">
+                        <tr style="border: none !important;">
+                            <th style="padding: 10px; text-align: center; width: 20%; border: none !important;">Concept</th>
+                            <th style="padding: 10px; text-align: center; width: 16%; border: none !important;">Prototype</th>
+                            <th colspan="4" style="padding: 10px; text-align: center; border: none !important;">Representative Exemplars</th>
+                        </tr>
+                    </thead>
+                    <tbody style="border: none !important;">
+                        <!-- Surreal Volumetric Curvature -->
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; width: 160px; min-width: 160px; max-width: 160px; border: none !important;">
+                                <strong>Surreal Volumetric Curvature</strong><br>
+                                <span style="background-color: #e0e0e0; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; display: inline-block; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Artistic Aesthetic</span>
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concept_02415/input_steered/steered_0.2.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concept_02415/positives/002_stylebreeder_000266440.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concept_02415/positives/001_stylebreeder_000028360.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concept_02415/positives/004_stylebreeder_000158961.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concept_02415/positives/009_stylebreeder_000603005.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                        </tr>
+                        <!-- Watercolor -->
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; width: 160px; min-width: 160px; max-width: 160px; border: none !important;">
+                                <strong>Watercolor</strong><br>
+                                <span style="background-color: #e0e0e0; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; display: inline-block; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Artistic Aesthetics</span>
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_18858/steered.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_18858/positives/1.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_18858/positives/2.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_18858/positives/3.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_18858/positives/4.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 2: Graphic Style & Water Reflection -->
+        <div class="slide-content" style="display: none;">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; border: none !important;">
+                    <thead style="border: none !important; border-bottom: none !important;">
+                        <tr style="border: none !important;">
+                            <th style="padding: 10px; text-align: center; width: 20%; border: none !important;">Concept</th>
+                            <th style="padding: 10px; text-align: center; width: 16%; border: none !important;">Prototype</th>
+                            <th colspan="4" style="padding: 10px; text-align: center; border: none !important;">Representative Exemplars</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Graphic Style -->
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; width: 160px; min-width: 160px; max-width: 160px; border: none !important;">
+                                <strong>Graphic Style</strong><br>
+                                <span style="background-color: #e0e0e0; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; display: inline-block; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Style & Cultural Aesthetics</span>
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00379/steered.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00379/positives/1.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00379/positives/2.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00379/positives/3.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00379/positives/4.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                        </tr>
+                        <!-- Water Reflection -->
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; width: 160px; min-width: 160px; max-width: 160px; border: none !important;">
+                                <strong>Water Reflection</strong><br>
+                                <span style="background-color: #e0e0e0; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; display: inline-block; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Reflectivity & Specular Light</span>
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00948/steered.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00948/positives/1.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00948/positives/2.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00948/positives/3.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_00948/positives/4.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 3: Pink & Chiaroscuro -->
+        <div class="slide-content" style="display: none;">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; border: none !important;">
+                    <thead style="border: none !important; border-bottom: none !important;">
+                        <tr style="border: none !important;">
+                            <th style="padding: 10px; text-align: center; width: 20%; border: none !important;">Concept</th>
+                            <th style="padding: 10px; text-align: center; width: 16%; border: none !important;">Prototype</th>
+                            <th colspan="4" style="padding: 10px; text-align: center; border: none !important;">Representative Exemplars</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Pink -->
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; width: 160px; min-width: 160px; max-width: 160px; border: none !important;">
+                                <strong>Pink</strong><br>
+                                <span style="background-color: #e0e0e0; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; display: inline-block; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Color & Chromatic Qualities</span>
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_02458/steered.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_02458/positives/1.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_02458/positives/2.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_02458/positives/3.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_02458/positives/4.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                        </tr>
+                        <!-- Chiaroscuro -->
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; width: 160px; min-width: 160px; max-width: 160px; border: none !important;">
+                                <strong>Chiaroscuro</strong><br>
+                                <span style="background-color: #e0e0e0; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; display: inline-block; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">General Lighting & Shading</span>
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_05205/steered.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_05205/positives/1.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_05205/positives/2.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_05205/positives/3.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_05205/positives/4.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 4: Technical Drawing & Flat Design -->
+        <div class="slide-content" style="display: none;">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; border: none !important;">
+                    <thead style="border: none !important; border-bottom: none !important;">
+                        <tr style="border: none !important;">
+                            <th style="padding: 10px; text-align: center; width: 20%; border: none !important;">Concept</th>
+                            <th style="padding: 10px; text-align: center; width: 16%; border: none !important;">Prototype</th>
+                            <th colspan="4" style="padding: 10px; text-align: center; border: none !important;">Representative Exemplars</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Technical Drawing -->
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; width: 160px; min-width: 160px; max-width: 160px; border: none !important;">
+                                <strong>Technical Drawing</strong><br>
+                                <span style="background-color: #e0e0e0; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; display: inline-block; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Form, Volume, Geometry</span>
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_10979/steered.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_10979/positives/1.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_10979/positives/2.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_10979/positives/3.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_10979/positives/4.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                        </tr>
+                        <!-- Flat Design -->
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; width: 160px; min-width: 160px; max-width: 160px; border: none !important;">
+                                <strong>Flat Design</strong><br>
+                                <span style="background-color: #e0e0e0; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; display: inline-block; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Style & Cultural Aesthetics</span>
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_03479/steered.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_03479/positives/1.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_03479/positives/2.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_03479/positives/3.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/concept-spotlight/concepts/concept_03479/positives/4.jpg" style="width: 120px; height: 120px; object-fit: cover;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="caption" style="font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+            <strong>Examples</strong> of SAE Concepts. Shown above are the concept name, category label, prototype visualization, and representative exemplars for concepts learned by LouvreSAE-20K. Navigate through the slides to see more examples spanning different artistic dimensions.
+        </p>
+    </div>
+
+    <!-- Concept Steering Section -->
+    <div class="container blog main">
+        <h1>Steering Concepts</h1>
+        <p class="text">
+            Once we've identified interpretable concepts, we can steer them—increasing or decreasing their intensity to control specific artistic attributes in generated images. This steering is performed by scaling the activation of individual SAE features during image generation, allowing for fine-grained, interpretable control over style without any model fine-tuning.
+        </p>
+
+        <p class="text">
+            Below we demonstrate concept steering with interactive sliders. For each concept, you can adjust the steering intensity (coefficient $\alpha$) and see how it affects the generated image. The prototype image shows the concept applied to a simple object for clarity.
+        </p>
+    </div>
+
+    <!-- Interactive Concept Steering -->
+    <div class="container blog extra-extra-large gray">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <!-- Painterliness -->
+            <div>
+                <h3 style="text-align: center; margin-bottom: 10px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600;">Painterliness</h3>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 0.85em;"><span style="background-color: #d0d0d0; padding: 3px 10px; border-radius: 3px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Artistic Aesthetics</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Prototype</div>
+                        <img src="assets/figures/concept-steering/painterliness/sphere.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Result</div>
+                        <img id="painterliness-result" src="assets/figures/concept-steering/painterliness/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <input type="range" id="painterliness-slider" min="0" max="3" value="0" step="1" style="width: 290px; cursor: pointer; display: block; margin: 0 auto;" oninput="updateConceptImage('painterliness', this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #666; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 290px; margin-left: auto; margin-right: auto;">
+                        <span>α₁</span><span>α₂</span><span>α₃</span><span>α₄</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aerial Perspective -->
+            <div>
+                <h3 style="text-align: center; margin-bottom: 10px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600;">Aerial Perspective</h3>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 0.85em;"><span style="background-color: #d0d0d0; padding: 3px 10px; border-radius: 3px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Form, Volume, Geometry</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Prototype</div>
+                        <img src="assets/figures/concept-steering/aerial-perspective/sphere.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Result</div>
+                        <img id="aerial-result" src="assets/figures/concept-steering/aerial-perspective/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <input type="range" id="aerial-slider" min="0" max="3" value="0" step="1" style="width: 290px; cursor: pointer; display: block; margin: 0 auto;" oninput="updateConceptImage('aerial', this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #666; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 290px; margin-left: auto; margin-right: auto;">
+                        <span>α₁</span><span>α₂</span><span>α₃</span><span>α₄</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Water Reflection -->
+            <div>
+                <h3 style="text-align: center; margin-bottom: 10px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600;">Water Reflection</h3>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 0.85em;"><span style="background-color: #d0d0d0; padding: 3px 10px; border-radius: 3px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Reflectivity & Specular Light</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Prototype</div>
+                        <img src="assets/figures/concept-steering/steering/concept_00948/steered.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Result</div>
+                        <img id="water-result" src="assets/figures/concept-steering/steering/concept_00948/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <input type="range" id="water-slider" min="0" max="4" value="0" step="1" style="width: 290px; cursor: pointer; display: block; margin: 0 auto;" oninput="updateConceptImage('water', this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #666; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 290px; margin-left: auto; margin-right: auto;">
+                        <span>α₁</span><span>α₂</span><span>α₃</span><span>α₄</span><span>α₅</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faceted -->
+            <div>
+                <h3 style="text-align: center; margin-bottom: 10px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600;">Faceted</h3>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 0.85em;"><span style="background-color: #d0d0d0; padding: 3px 10px; border-radius: 3px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Form, Volume, Geometry</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Prototype</div>
+                        <img src="assets/figures/concept-steering/steering/concept_02662/steered.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Result</div>
+                        <img id="faceted-result" src="assets/figures/concept-steering/steering/concept_02662/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <input type="range" id="faceted-slider" min="0" max="4" value="0" step="1" style="width: 290px; cursor: pointer; display: block; margin: 0 auto;" oninput="updateConceptImage('faceted', this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #666; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 290px; margin-left: auto; margin-right: auto;">
+                        <span>α₁</span><span>α₂</span><span>α₃</span><span>α₄</span><span>α₅</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flat Design -->
+            <div>
+                <h3 style="text-align: center; margin-bottom: 10px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600;">Flat Design</h3>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 0.85em;"><span style="background-color: #d0d0d0; padding: 3px 10px; border-radius: 3px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Style & Cultural Aesthetics</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Prototype</div>
+                        <img src="assets/figures/concept-steering/steering/concept_03479/steered.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Result</div>
+                        <img id="flat-result" src="assets/figures/concept-steering/steering/concept_03479/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <input type="range" id="flat-slider" min="0" max="4" value="0" step="1" style="width: 290px; cursor: pointer; display: block; margin: 0 auto;" oninput="updateConceptImage('flat', this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #666; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 290px; margin-left: auto; margin-right: auto;">
+                        <span>α₁</span><span>α₂</span><span>α₃</span><span>α₄</span><span>α₅</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Drawing -->
+            <div>
+                <h3 style="text-align: center; margin-bottom: 10px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600;">Technical Drawing</h3>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 0.85em;"><span style="background-color: #d0d0d0; padding: 3px 10px; border-radius: 3px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Form, Volume, Geometry</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Prototype</div>
+                        <img src="assets/figures/concept-steering/steering/concept_10979/steered.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Result</div>
+                        <img id="technical-result" src="assets/figures/concept-steering/steering/concept_10979/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <input type="range" id="technical-slider" min="0" max="4" value="0" step="1" style="width: 290px; cursor: pointer; display: block; margin: 0 auto;" oninput="updateConceptImage('technical', this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #666; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 290px; margin-left: auto; margin-right: auto;">
+                        <span>α₁</span><span>α₂</span><span>α₃</span><span>α₄</span><span>α₅</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Watercolor -->
+            <div>
+                <h3 style="text-align: center; margin-bottom: 10px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600;">Watercolor</h3>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 0.85em;"><span style="background-color: #d0d0d0; padding: 3px 10px; border-radius: 3px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Artistic Aesthetics</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Prototype</div>
+                        <img src="assets/figures/concept-steering/steering/concept_18858/steered.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Result</div>
+                        <img id="watercolor-result" src="assets/figures/concept-steering/steering/concept_18858/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <input type="range" id="watercolor-slider" min="0" max="4" value="0" step="1" style="width: 290px; cursor: pointer; display: block; margin: 0 auto;" oninput="updateConceptImage('watercolor', this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #666; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 290px; margin-left: auto; margin-right: auto;">
+                        <span>α₁</span><span>α₂</span><span>α₃</span><span>α₄</span><span>α₅</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pink -->
+            <div>
+                <h3 style="text-align: center; margin-bottom: 10px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600;">Pink</h3>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 0.85em;"><span style="background-color: #d0d0d0; padding: 3px 10px; border-radius: 3px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Color & Chromatic Qualities</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Prototype</div>
+                        <img src="assets/figures/concept-steering/steering/concept_02458/steered.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Result</div>
+                        <img id="pink-result" src="assets/figures/concept-steering/steering/concept_02458/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <input type="range" id="pink-slider" min="0" max="4" value="0" step="1" style="width: 290px; cursor: pointer; display: block; margin: 0 auto;" oninput="updateConceptImage('pink', this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #666; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 290px; margin-left: auto; margin-right: auto;">
+                        <span>α₁</span><span>α₂</span><span>α₃</span><span>α₄</span><span>α₅</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Curls -->
+            <div>
+                <h3 style="text-align: center; margin-bottom: 10px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 600;">Curls</h3>
+                <p style="text-align: center; margin-bottom: 15px; font-size: 0.85em;"><span style="background-color: #d0d0d0; padding: 3px 10px; border-radius: 3px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Form, Volume, Geometry</span></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Prototype</div>
+                        <img src="assets/figures/concept-steering/steering/concept_16679/steered.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.85em; color: #666; margin-bottom: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Result</div>
+                        <img id="curls-result" src="assets/figures/concept-steering/steering/concept_16679/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <input type="range" id="curls-slider" min="0" max="4" value="0" step="1" style="width: 290px; cursor: pointer; display: block; margin: 0 auto;" oninput="updateConceptImage('curls', this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; color: #666; margin-top: 5px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 290px; margin-left: auto; margin-right: auto;">
+                        <span>α₁</span><span>α₂</span><span>α₃</span><span>α₄</span><span>α₅</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="caption" style="font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+            <strong>Concept</strong> Steering Examples. Adjust the sliders to see how steering intensity (governed by the $\alpha$ coefficient) affects the generated images. The concept prototype and resulting steered image are shown side by side above each slider.
+        </p>
+    </div>
+
+    <!-- Style Transfer Pipeline -->
+    <div class="container blog main">
+        <h1>Style Transfer Pipeline</h1>
+        <p class="text">
+            By combining multiple steered concepts, we construct <em>style profiles</em>—compact representations that capture an artist's unique aesthetic. These profiles enable efficient style transfer: given a content image and a reference style, LouvreSAE transfers the style without any model fine-tuning, additional training, or optimization.
+        </p>
+
+        <p class="text">
+            Below we compare LouvreSAE against state-of-the-art baselines including B-LoRA, InstantStyle, and StyleShot. For each artist style, we show a reference sample, a content image, and the results from each method.
+        </p>
+    </div>
+
+    <!-- Style Transfer Comparison - Slide Display -->
+    <div class="container blog extra-extra-large gray">
+        <div class="slide-menu">
+            <ul class="dots" id="style-slides">
+                <li class="dot active"></li>
+                <li class="dot"></li>
+                <li class="dot"></li>
+                <li class="dot"></li>
+            </ul>
+        </div>
+
+        <!-- Slide 1: Arthur Rackham -->
+        <div class="slide-content" style="display: block;">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; border: none;">
+                    <thead style="border: none;">
+                        <tr>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Style</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Reference Sample</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Content Image</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">B-LoRA</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">InstantStyle</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">StyleShot</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;"><strong>LouvreSAE</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody style="border: none !important;">
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; font-weight: bold; width: 120px; min-width: 120px; max-width: 120px; border: none !important;">Arthur<br>Rackham</td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/arthur-rackham/reference/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/arthur-rackham/content/87.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/b_lora/arthur-rackham/87.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/instant_style/arthur-rackham/87.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/style_shot/arthur-rackham/87.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; background-color: rgba(33, 150, 243, 0.05); border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/arthur-rackham/generated/87.png" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 2: Franz Marc -->
+        <div class="slide-content" style="display: none;">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; border: none;">
+                    <thead style="border: none;">
+                        <tr>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Style</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Reference Sample</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Content Image</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">B-LoRA</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">InstantStyle</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">StyleShot</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;"><strong>LouvreSAE</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody style="border: none !important;">
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; font-weight: bold; width: 120px; min-width: 120px; max-width: 120px; border: none !important;">Franz<br>Marc</td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/franz-marc/reference/1.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/franz-marc/content/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/b_lora/franz-marc/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/instant_style/franz-marc/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/style_shot/franz-marc/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; background-color: rgba(33, 150, 243, 0.05); border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/franz-marc/generated/0.png" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 3: Hiroshige -->
+        <div class="slide-content" style="display: none;">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; border: none;">
+                    <thead style="border: none;">
+                        <tr>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Style</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Reference Sample</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Content Image</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">B-LoRA</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">InstantStyle</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">StyleShot</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;"><strong>LouvreSAE</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody style="border: none !important;">
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; font-weight: bold; width: 120px; min-width: 120px; max-width: 120px; border: none !important;">Hiroshige</td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/hiroshige/reference/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/hiroshige/content/52.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/b_lora/hiroshige/52.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/instant_style/hiroshige/52.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/style_shot/hiroshige/52.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; background-color: rgba(33, 150, 243, 0.05); border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/hiroshige/generated/52.png" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 4: Theodor Severin Kittelsen -->
+        <div class="slide-content" style="display: none;">
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin: 0 auto; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif; border: none;">
+                    <thead style="border: none;">
+                        <tr>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Style</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Reference Sample</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">Content Image</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">B-LoRA</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">InstantStyle</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;">StyleShot</th>
+                            <th style="padding: 10px; text-align: center; border: none !important;"><strong>LouvreSAE</strong></th>
+                        </tr>
+                    </thead>
+                    <tbody style="border: none !important;">
+                        <tr style="background: transparent !important; border: none !important;">
+                            <td style="padding: 15px; text-align: center; vertical-align: middle; font-weight: bold; width: 120px; min-width: 120px; max-width: 120px; border: none !important;">Theodor<br>Severin<br>Kittelsen</td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/theodor-severin-kittelsen/reference/0.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/theodor-severin-kittelsen/content/76.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/b_lora/theodor-severin-kittelsen/76.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/instant_style/theodor-severin-kittelsen/76.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; border: none !important;">
+                                <img src="assets/figures/qual-examples/style_shot/theodor-severin-kittelsen/76.jpg" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                            <td style="padding: 10px; text-align: center; background-color: rgba(33, 150, 243, 0.05); border: none !important;">
+                                <img src="assets/figures/qual-examples/louvre_sae/theodor-severin-kittelsen/generated/76.png" style="width: 140px; height: 140px; object-fit: cover;">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="caption" style="font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+            <strong>Qualitative</strong> Baseline Comparison. We compare LouvreSAE (Kandinsky 2.2 + LouvreSAE-20K) to B-LoRA, InstantStyle, and StyleShot. For each style, the content image is transferred using the reference sample shown. Navigate through the slides to see results across different artists.
+        </p>
+    </div>
+
+    <!-- Quantitative Results -->
+    <div class="container blog main">
+        <h1>Quantitative Results</h1>
+        <p class="text">
+            We evaluate LouvreSAE against state-of-the-art baselines on the ArtBench10 dataset, measuring both style fidelity and content preservation. Our method achieves the best VGG Style Loss and competitive CLIP Score for style, while maintaining strong content preservation. Critically, LouvreSAE is dramatically faster: style extraction takes only 6 seconds (compared to 660 seconds for B-LoRA), and image generation is comparable to other methods.
+        </p>
+
+        <div class="table-wrapper" style="margin-top: 30px;">
+            <table style="font-size: 0.9em; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                <thead class="center">
+                    <tr>
+                        <th>Method</th>
+                        <th>Backbone</th>
+                        <th>VGG Loss: Style ↓</th>
+                        <th>VGG Loss: Content ↓</th>
+                        <th>LPIPS ↓</th>
+                        <th>CLIP Score: Style ↑</th>
+                        <th>CLIP Score: Content ↑</th>
+                        <th>Style Extraction (s)</th>
+                        <th>Image Gen. (s)</th>
+                    </tr>
+                </thead>
+                <tbody class="center">
+                    <tr>
+                        <td>B-LoRA</td>
+                        <td>SD XL</td>
+                        <td>1.63×10⁻⁴</td>
+                        <td>42.53</td>
+                        <td>0.75</td>
+                        <td>0.21</td>
+                        <td>0.18</td>
+                        <td>660</td>
+                        <td>30</td>
+                    </tr>
+                    <tr>
+                        <td>InstantStyle</td>
+                        <td>SD XL</td>
+                        <td>2.48×10⁻⁵</td>
+                        <td><strong>22.94</strong></td>
+                        <td><strong>0.64</strong></td>
+                        <td>0.25</td>
+                        <td>0.24</td>
+                        <td>—</td>
+                        <td>78</td>
+                    </tr>
+                    <tr>
+                        <td>StyleShot</td>
+                        <td>SD 1.5</td>
+                        <td>3.74×10⁻⁵</td>
+                        <td>29.17</td>
+                        <td>0.71</td>
+                        <td>0.25</td>
+                        <td>0.20</td>
+                        <td>—</td>
+                        <td>60</td>
+                    </tr>
+                    <tr style="border-top: 2px solid #ddd; background-color: rgba(33, 150, 243, 0.05);">
+                        <td><strong>LouvreSAE</strong></td>
+                        <td>Kand. 2.2</td>
+                        <td><strong>1.73×10⁻⁵</strong></td>
+                        <td>35.04</td>
+                        <td>0.73</td>
+                        <td><strong>0.27</strong></td>
+                        <td>0.26</td>
+                        <td><strong>6</strong></td>
+                        <td>29</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="caption" style="margin-top: 15px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+            <strong>Quantitative</strong> Comparison with Baselines. LouvreSAE achieves the best style transfer performance (lowest VGG Style Loss, highest CLIP Score for style) while being dramatically faster. Style extraction assumes 40 training images. Runtimes measured on NVIDIA A100 SXM 40GB.
+        </p>
+    </div>
+
+    <!-- Discussion and Future Directions -->
+    <div class="container blog main">
+        <h1>More Results & Discussion</h1>
+        <p class="text">
+            LouvreSAE demonstrates that interpretable, efficient style transfer is achievable through careful decomposition of latent representations. Our operational definition of style—as recurring activation patterns across semantically diverse content—provides a principled foundation for understanding and manipulating artistic aesthetics in generative models.
+        </p>
+
+        <p class="text">
+            Beyond the quantitative improvements, the interpretability of our approach offers unique advantages. Artists and researchers can inspect individual concepts, understand which stylistic elements are being transferred, and selectively enable or disable specific attributes. This level of control and transparency is difficult to achieve with end-to-end fine-tuning approaches.
+        </p>
+
+        <p class="text">
+            Below we show additional qualitative results across various artists, demonstrating the versatility and robustness of LouvreSAE across different artistic styles and content types.
+        </p>
+    </div>
+
+    <!-- Additional Results Figure -->
+    <div class="container blog extra-extra-large gray-linear">
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 25px;">
+            <!-- Camille Pissarro -->
+            <div>
+                <h3 style="text-align: center; font-size: 1em; margin-bottom: 15px; font-weight: 600; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Camille Pissarro</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Reference</div>
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Generated</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <img src="assets/figures/fig_11/camille/camille-pissarro-windmill-at-knokke-belgium-1894.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/camille/000091_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                    <img src="assets/figures/fig_11/camille/camille-pissarro-la-mere-gaspard-1876.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/camille/000003_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+            </div>
+
+            <!-- El Greco -->
+            <div>
+                <h3 style="text-align: center; font-size: 1em; margin-bottom: 15px; font-weight: 600; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">El Greco</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Reference</div>
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Generated</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <img src="assets/figures/fig_11/el-greco/el-greco_the-agony-in-the-garden-1.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/el-greco/000040_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                    <img src="assets/figures/fig_11/el-greco/el-greco_virgin-mary.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/el-greco/000082_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+            </div>
+
+            <!-- Egon Schiele -->
+            <div>
+                <h3 style="text-align: center; font-size: 1em; margin-bottom: 15px; font-weight: 600; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Egon Schiele</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Reference</div>
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Generated</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <img src="assets/figures/fig_11/egon/egon-schiele_autumn-sun-1912.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/egon/000043_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                    <img src="assets/figures/fig_11/egon/egon-schiele_four-trees-1917.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/egon/000063_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+            </div>
+
+            <!-- Ivan Bilibin -->
+            <div>
+                <h3 style="text-align: center; font-size: 1em; margin-bottom: 15px; font-weight: 600; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Ivan Bilibin</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Reference</div>
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Generated</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <img src="assets/figures/fig_11/ivan/ivan-bilibin_crimea-koktebel-1939-1.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/ivan/000048_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                    <img src="assets/figures/fig_11/ivan/ivan-bilibin_sketch-for-the-spectacle-honor-and-revenge-by-fiodor-sollogub-1908.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/ivan/000058_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+            </div>
+
+            <!-- Paul Gauguin -->
+            <div>
+                <h3 style="text-align: center; font-size: 1em; margin-bottom: 15px; font-weight: 600; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Paul Gauguin</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Reference</div>
+                    <div style="text-align: center; font-size: 0.85em; color: #666; font-weight: 500; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">Generated</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <img src="assets/figures/fig_11/paul-gauguin/paul-gauguin_suburb-under-snow-1886.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/paul-gauguin/000033_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                    <img src="assets/figures/fig_11/paul-gauguin/paul-gauguin_vase-of-flowers-1896.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                    <img src="assets/figures/fig_11/paul-gauguin/000050_image.jpg" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px;">
+                </div>
+            </div>
+        </div>
+
+      
+
+        <p class="caption" style="margin-top: 25px; font-family: 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+            <strong>Additional</strong> Qualitative Examples. Images generated using LouvreSAE (Kandinsky 2.2 + LouvreSAE-20K) across diverse artistic styles. For each artist, reference samples are shown alongside content images and their style-transferred results, demonstrating consistent quality and faithful style reproduction.
+        </p>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="container blog main">
+        <h2>Future Directions</h2>
+        <p class="text">
+            Several exciting directions remain for future work. First, extending our approach to other generative architectures (e.g., Stable Diffusion, DALL-E) could broaden its applicability. Second, developing user interfaces that allow artists to directly manipulate style profiles could enable new creative workflows. Third, investigating how style concepts compose and interact could lead to even finer-grained control. Finally, studying how our operational definition of style relates to perceptual and art historical theories could deepen our understanding of artistic representation in neural networks.
+        </p>
+
+        <p class="text">
+            We believe LouvreSAE represents a step toward more interpretable, efficient, and controllable style transfer—one that respects both the technical constraints of modern AI systems and the nuanced, multifaceted nature of artistic style itself.
+        </p>
+    </div>
+
+    <!-- Citation -->
+    <div class="container blog main">
+        <h1>Citation</h1>
+<pre><code class="plaintext">@inproceedings{panda2026louvresae,
+  title={LouvreSAE: Sparse Autoencoders for Interpretable and Controllable Style Transfer},
+  author={Panda, Raina and Fein, Daniel and Singhal, Arpita and Fiore, Mark and Agrawala, Maneesh and Bohacek, Matyas},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  year={2026}
+}</code></pre>
+    </div>
+
+    <!-- Footer Page -->
+    <footer>
+        <div class="container">
+            <p style="font-size: small;">
+                Last updated January 2025. This website is built on the <a href="https://shikun.io/projects/clarity" style="font-size: small;">Clarity Template</a>.
+            </p>
+        </div>    
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="clarity/clarity.js"></script>    
+    <script src="assets/scripts/main.js"></script>    
+</body>
+</html>
+</html>
+</html>
+</html>
+</html>
+</html>
+</html>
+</html>
