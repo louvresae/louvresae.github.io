@@ -325,3 +325,54 @@ select {
 .after figcaption {
     font-size: 70%;
 }
+
+/* ======================== Key Insights Box ===================== */
+.insights-box {
+    border: 2px solid $gray-30;
+    border-radius: 8px;
+    padding: 1.5em 2em 1.2em 2em;
+    margin: 2em 0;
+    
+    legend {
+        padding: 0 0.5em;
+        font-weight: 600;
+        color: $gray-80;
+        font-family: $default-serif, serif;
+    }
+}
+
+/* ======================== Hover Image Effect ===================== */
+.hover-image-container {
+    position: relative;
+    cursor: pointer;
+    display: block;
+    
+    .hover-image-default {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: opacity 0.3s ease-in-out;
+        opacity: 1;
+    }
+    
+    .hover-image-hover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: opacity 0.3s ease-in-out;
+        opacity: 0;
+    }
+    
+    &:hover {
+        .hover-image-default {
+            opacity: 0;
+        }
+        
+        .hover-image-hover {
+            opacity: 1;
+        }
+    }
+}

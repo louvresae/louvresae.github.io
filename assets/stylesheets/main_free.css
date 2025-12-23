@@ -1536,4 +1536,50 @@ select {
 .before figcaption,
 .after figcaption {
   font-size: 70%;
-}/*# sourceMappingURL=main_free.css.map */
+}
+
+/* ======================== Key Insights Box ===================== */
+.insights-box {
+  border: 2px solid #c6c6c6;
+  border-radius: 8px;
+  padding: 1.5em 2em 1.2em 2em;
+  margin: 2em 0;
+}
+.insights-box legend {
+  padding: 0 0.5em;
+  font-weight: 600;
+  color: #666667;
+  font-family: "Charter", serif;
+}
+
+/* ======================== Hover Image Effect ===================== */
+.hover-image-container {
+  position: relative;
+  cursor: pointer;
+  display: block;
+}
+.hover-image-container .hover-image-default {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 1;
+}
+.hover-image-container .hover-image-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+.hover-image-container:hover .hover-image-default {
+  opacity: 0;
+}
+.hover-image-container:hover .hover-image-hover {
+  opacity: 1;
+}
+
+/*# sourceMappingURL=main_free.css.map */

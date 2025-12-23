@@ -87,15 +87,31 @@
             </div>
 
             <div class="blog-cover" style="width: 100% !important;">
-                <img src="assets/figures/main.png">
-                
+                <div id="hero-wrapper" style="position: relative; width: 100%; cursor: pointer;">
+                    <img src="assets/figures/main.png" id="hero-default" style="width: 100%; display: block; transition: opacity 0.3s ease-in-out;">
+                    <img src="assets/figures/main-hover.png" id="hero-hover" style="position: absolute; top: 0; left: 0; width: 100%; display: block; opacity: 0; transition: opacity 0.3s ease-in-out;">
+                </div>
             </div>
+            <script>
+                (function() {
+                    var wrapper = document.getElementById('hero-wrapper');
+                    var defaultImg = document.getElementById('hero-default');
+                    var hoverImg = document.getElementById('hero-hover');
+                    wrapper.addEventListener('mouseenter', function() {
+                        defaultImg.style.opacity = '0';
+                        hoverImg.style.opacity = '1';
+                    });
+                    wrapper.addEventListener('mouseleave', function() {
+                        defaultImg.style.opacity = '1';
+                        hoverImg.style.opacity = '0';
+                    });
+                })();
+            </script>
         </div>
     </div>
 
     <!-- Introduction -->
     <div class="container blog main first" id="blog-main">
-        <h1>Introduction</h1>
         <p class="text">
             Artistic style transfer in generative models remains a significant challenge. Existing methods often introduce style via model fine-tuning, additional adapters, or prompt engineering—all computationally expensive approaches that may still entangle style with subject matter. We introduce <strong>LouvreSAE</strong>, a training- and inference-light, interpretable method for representing and transferring artistic style.
         </p>
@@ -106,19 +122,16 @@
     </div>
 
     <!-- Key Takeaways -->
-    <div class="container blog main">
-        <h2>Key Insights</h2>
-        <p class="text">
-            Our research demonstrates three key insights:
-        </p>
-        
-        <ul style="margin-left: 2em; margin-top: 1em;">
-            <li style="margin-bottom: 1em;"><strong>Existing embeddings contain rich style information.</strong> Pre-trained image model embeddings already encode sufficient information about artistic style. Through careful interpretation and steering, we can unlock efficient style representation and transfer without additional training.</li>
-            
-            <li style="margin-bottom: 1em;"><strong>Operational definition enables style profiles.</strong> By defining style as recurring activation patterns across semantically diverse images, we can create compact, decomposable "style profiles" that capture an artist's unique aesthetic.</li>
-            
-            <li style="margin-bottom: 1em;"><strong>State-of-the-art performance with efficiency.</strong> We train and open-source a collection of SAEs for CLIP, achieving state-of-the-art style transfer results at 1.7-20× less computational demand than existing methods.</li>
-        </ul>
+    <div class="container blog main">        
+        <!--key insights box-->
+        <fieldset class="insights-box">
+            <legend>Key Insights</legend>
+            <ul style="margin-left: 1.5em; margin-bottom: 0;">
+                <li style="margin-bottom: 0.8em;"><b>Existing embeddings contain rich style information.</b> Pre-trained image model embeddings already encode sufficient information about artistic style. Through careful interpretation and steering, we can unlock efficient style representation and transfer without additional training.</li>
+                <li style="margin-bottom: 0.8em;"><b>Operational definition enables style profiles.</b> By defining style as recurring activation patterns across semantically diverse images, we can create compact, decomposable "style profiles" that capture an artist's unique aesthetic.</li>
+                <li style="margin-bottom: 0.8em;"><b>State-of-the-art performance with efficiency.</b> We train and open-source a collection of SAEs for CLIP, achieving state-of-the-art style transfer results at 1.7-20× less computational demand than existing methods.</li>
+            </ul>
+        </fieldset>
     </div>
 
     <!-- SAE Training and Concept Discovery -->
