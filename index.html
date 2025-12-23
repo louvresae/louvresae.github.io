@@ -4,25 +4,25 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uncovering Conceptual Blindspots in Generative Image Models Using Sparse Autoencoders</title>
-    <meta name="description" content="A systematic framework for identifying and characterizing conceptual blindspots in generative image models using sparse autoencoders.">
+    <title>LouvreSAE</title>
+    <meta name="description" content="We introduce LouvreSAE, an interpretable style representation and style transfer method that utilizes sparse autoencoders to decompose CLIP embeddings into steerable art- and style-specific concepts like brushwork and texture. By constructing 'style profiles' from recurring activations, our approach injects aesthetic attributes directly into pre-trained diffusion models without fine-tuning. Validations on ArtBench10 show LouvreSAE outperforms SOTA baselines on style fidelity while offering granular control and 1.7-20x faster inference.">
     <meta name="referrer" content="no-referrer-when-downgrade">
     <meta name="robots" content="all">
     <meta content="en_EN" property="og:locale">
     <meta content="website" property="og:type">
     <meta content="https://example.com/conceptual-blindspots" property="og:url">
-    <meta content="Uncovering Conceptual Blindspots in Generative Image Models Using Sparse Autoencoders" property="og:title">
-    <meta content="A systematic framework for identifying and characterizing conceptual blindspots in generative image models" property="og:description">
+    <meta content="LouvreSAE: Sparse Autoencoders for Interpretable and Controllable Style Transfer" property="og:title">
+    <meta content="We introduce LouvreSAE, an interpretable style representation and style transfer method that utilizes sparse autoencoders to decompose CLIP embeddings into steerable art- and style-specific concepts like brushwork and texture. By constructing 'style profiles' from recurring activations, our approach injects aesthetic attributes directly into pre-trained diffusion models without fine-tuning. Validations on ArtBench10 show LouvreSAE outperforms SOTA baselines on style fidelity while offering granular control and 1.7-20x faster inference." property="og:description">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@your_twitter_id">
-    <meta name="twitter:description" content="Uncovering Conceptual Blindspots in Generative Image Models Using Sparse Autoencoders">
+    <meta name="twitter:description" content="LouvreSAE: Sparse Autoencoders for Interpretable and Controllable Style Transfer">
     <meta name="twitter:image:src" content="assets/figures/teaser.png">
     
     <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/main_free.css" />
     <link rel="stylesheet" type="text/css" media="all" href="clarity/clarity.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/foundation.min.css">
-    <link href="assets/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet">
+    <link href="assets/fontawesome-free-7.1.0-web/css/all.min.css" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/img-comparison-slider@8/dist/index.js"></script>
     <script src="assets/scripts/navbar.js"></script>
     <script type="text/x-mathjax-config">
@@ -81,15 +81,14 @@
                         <sup>1</sup> Washington High School   <sup>2</sup> Stanford University <br>
                     </p>
                     <p class="abstract">
-                        We introduce LouvreSAE, an interpretable style representation and style transfer method that utilizes sparse autoencoders to decompose style into steerable concepts like brushwork and texture. By constructing "style profiles" from recurring activations, our approach injects aesthetic attributes directly into pre-trained diffusion models without fine-tuning. Validations on ArtBench10 show LouvreSAE outperforms SOTA baselines on style fidelity while offering granular control and 1.7-20x faster inference.
+                        We introduce LouvreSAE, an interpretable style representation and style transfer method that utilizes sparse autoencoders to decompose CLIP embeddings into steerable art- and style-specific concepts like brushwork and texture (shown on the right). By constructing "style profiles" from recurring activations, our approach injects aesthetic attributes directly into pre-trained diffusion models without fine-tuning. Validations on ArtBench10 show LouvreSAE outperforms SOTA baselines on style fidelity while offering granular control and 1.7-20x faster inference.
                     </p>
 
                     <div class="info">
                         <div>
-                            <a href="" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">Paper <i class="fa-solid fa-book-open"></i></a> &nbsp;&nbsp; 
-                            <a href="" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">Code <i class="fa-solid fa-code"></i></a>  &nbsp;&nbsp; 
-                            <a href="" class="button icon" style="background-color: rgba(255, 255, 255, 0.2);">Demo <i class="fa-solid fa-globe"></i></a> &nbsp;&nbsp; 
-                            <a href="" class="button icon" style="background-color: rgba(255, 255, 255, 0.2);">Models <i class="fa-solid fa-database"></i></a> &nbsp;&nbsp; 
+                            <a href="https://arxiv.org/abs/2512.18930" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">Paper <i class="fa-solid fa-book-open"></i></a> &nbsp;&nbsp; 
+                            <a href="https://github.com/maty-bohacek/LouvreSAE" class="button icon" style="background-color: rgba(255, 255, 255, 0.2)">Code <i class="fa-solid fa-code"></i></a>  &nbsp;&nbsp; 
+                            <a href="https://huggingface.co/collections/danielfein/louvresae" class="button icon" style="background-color: rgba(255, 255, 255, 0.2);">Models <i class="fa-solid fa-hexagon-nodes"></i></a> &nbsp;&nbsp; 
                         </div>
                     </div>
                 </div>
