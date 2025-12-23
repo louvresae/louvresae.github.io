@@ -122,16 +122,9 @@
     <!-- Introduction -->
     <div class="container blog main first" id="blog-main">
         <p class="text">
-            Artistic style transfer in generative models remains a significant challenge. Existing methods often introduce style via model fine-tuning, additional adapters, or prompt engineering—all computationally expensive approaches that may still entangle style with subject matter. We introduce <strong>LouvreSAE</strong>, a training- and inference-light, interpretable method for representing and transferring artistic style.
+            Artistic style transfer in generative models remains a significant challenge. Existing works often lack a rigorous definition of style and style transfer, and introduce methods that utilize fine-tuning, adapters, or prompt engineering, all computationally expensive approaches that may entangle style with other undesired concepts. We introduce <strong>LouvreSAE</strong>, a training- and inference-light, interpretable method for representing and transferring artistic style. Our work resulted in the following insights:
         </p>
 
-        <p class="text">
-            Our approach leverages art-specific Sparse Autoencoders (SAEs) on top of latent embeddings of generative image models. Trained on artistic data, our SAE learns an emergent, largely disentangled set of stylistic and compositional concepts—corresponding to style-related elements like brushwork, texture, and color palette, as well as semantic and structural concepts.
-        </p>
-    </div>
-
-    <!-- Key Takeaways -->
-    <div class="container blog main">        
         <!--key insights box-->
         <fieldset class="insights-box">
             <legend>Key Insights</legend>
@@ -141,17 +134,14 @@
                 <li style="margin-bottom: 0.8em;"><b>State-of-the-art performance with efficiency.</b> We train and open-source a collection of SAEs for CLIP, achieving state-of-the-art style transfer results at 1.7-20× less computational demand than existing methods.</li>
             </ul>
         </fieldset>
-    </div>
 
-    <!-- SAE Training and Concept Discovery -->
-    <div class="container blog main">
         <h1>Discovering Style Concepts</h1>
         <p class="text">
-            We train Sparse Autoencoders on artistic image embeddings to decompose dense representations into interpretable, disentangled features. Our SAEs learn an emergent taxonomy of artistic concepts spanning multiple dimensions: from low-level properties like texture and color to high-level aesthetic styles and compositional patterns.
+            We train Sparse Autoencoders (SAEs) for CLIP embeddings on art- and style-rich data, decomposing dense representations into interpretable, disentangled features. Our SAEs learn an emergent taxonomy of artistic concepts spanning multiple dimensions: from low-level properties like texture and color to high-level aesthetic styles and compositional patterns.
         </p>
 
         <p class="text">
-            Below we showcase discovered concepts from LouvreSAE, each with its autointerpretability label, category, a prototype visualization (showing the concept steered on a simple shape), and representative exemplars that strongly activate that concept.
+            Below we showcase discovered concepts from LouvreSAE, each with its autointerpretability label, category, a prototype visualization (showing the concept steered on a simple white sphere), and representative exemplars that strongly activate that concept.
         </p>
     </div>
 
@@ -417,13 +407,13 @@
 
     <!-- Concept Steering Section -->
     <div class="container blog main">
-        <h1>Steering Concepts</h1>
+        <h1>Concept Steering</h1>
         <p class="text">
-            Once we've identified interpretable concepts, we can steer them—increasing or decreasing their intensity to control specific artistic attributes in generated images. This steering is performed by scaling the activation of individual SAE features during image generation, allowing for fine-grained, interpretable control over style without any model fine-tuning.
+            Once we've identified interpretable concepts, we can steer them: increasing or decreasing their intensity to control specific artistic attributes in generated images. This steering is performed by scaling the activation of individual SAE features during image generation, allowing for fine-grained, interpretable control over style without any model fine-tuning.
         </p>
 
         <p class="text">
-            Below we demonstrate concept steering with interactive sliders. For each concept, you can adjust the steering intensity (coefficient $\alpha$) and see how it affects the generated image. The prototype image shows the concept applied to a simple object for clarity.
+            Below we demonstrate concept steering with interactive sliders. For each concept, you can adjust the steering intensity (coefficient $\alpha$) and see how it affects the generated image. The prototype image shows the concept applied to a white sphere.
         </p>
     </div>
 
@@ -636,7 +626,7 @@
 
     <!-- Style Transfer Pipeline -->
     <div class="container blog main">
-        <h1>Style Transfer Pipeline</h1>
+        <h1>Packaging Concepts into Style Profiles</h1>
         <p class="text">
             By combining multiple steered concepts, we construct <em>style profiles</em>—compact representations that capture an artist's unique aesthetic. These profiles enable efficient style transfer: given a content image and a reference style, LouvreSAE transfers the style without any model fine-tuning, additional training, or optimization.
         </p>
