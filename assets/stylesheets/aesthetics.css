@@ -18,6 +18,12 @@
   text-transform:uppercase;color:var(--ink-3);line-height:1.4;
 }
 
+/* inline svg icon inside .button.icon, sized like the font-awesome glyphs */
+.button.icon .lv-btn-icon{
+  height:1.05em;width:auto;padding-left:.5em;padding-bottom:1px;
+  box-sizing:content-box;flex:none;
+}
+
 /* ---------- hero figure frame (matches the competency-gaps demo frame) ---------- */
 .demo-frame{
   width:100%; background:rgba(255,255,255,0.9); border-radius:12px; overflow:hidden;
