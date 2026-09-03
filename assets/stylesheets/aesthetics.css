@@ -110,9 +110,9 @@
 .voc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px 26px}
 .voc-card{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:14px 16px;min-width:0}
 .vc-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
-.vc-imgs{display:flex;gap:6px;min-width:0}
-.vc-imgs img{flex:1 1 0;min-width:0;aspect-ratio:1;object-fit:cover;border-radius:5px;display:block;
-  width:auto;height:auto;padding:0 !important;margin:0}
+.vc-imgs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;min-width:0}
+.vc-imgs img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:5px;display:block;
+  padding:0 !important;margin:0}
 @media screen and (max-width:700px){.voc-grid{grid-template-columns:1fr}}
 .vname{font-family:var(--sans);font-weight:600;font-size:16px;line-height:1.3;display:block}
 .vcat{font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.06em;
@@ -154,8 +154,8 @@
 .lv-bar span{display:block;height:100%;background:var(--navy-2);border-radius:3px;
   transition:width .5s cubic-bezier(.3,0,.2,1)}
 .lv-thumbs{display:flex;gap:5px}
-.lv-thumbs{display:flex;gap:6px}
-.lv-thumbs img{flex:1 1 0;min-width:0;width:auto;height:auto;aspect-ratio:1;object-fit:cover;border-radius:4px;display:block;padding:0 !important;margin:0}
+.lv-thumbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.lv-thumbs img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:4px;display:block;padding:0 !important;margin:0}
 
 /* ---------- charts ---------- */
 .lv-chart svg{width:100%;height:auto;display:block}
