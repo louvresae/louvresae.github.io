@@ -36,15 +36,15 @@
           <sup>1</sup> Stanford University &nbsp;&nbsp; <sup>2</sup> UC Davis &nbsp;&nbsp; <sup>3</sup> MIT
         </p>
         <p class="abstract">
-          Contemporary text-to-image models exhibit a recognizable, model-specific look even when
-          prompted without any stylistic instruction. We decompose generator outputs along an
-          interpretable, style-specific sparse vocabulary: <b>LouvreSAE</b>, a sparse autoencoder over
-          CLIP image embeddings whose dictionary is shaped to fall on stylistic rather than object
-          features, and <b>LatentAesthetic</b>, a methodology that uses it to estimate, ground and
-          compare generators' default aesthetics under content-controlled, style-neutral prompts.
-          Applied to 26 generators spanning four years, it surfaces stable per-generator profiles, a
-          uniform pull toward lifestyle and editorial photography over art-historical imagery, and a
-          steady cross-family contraction of the aesthetic envelope.
+          Even when prompted without stylistic instruction, contemporary text-to-image (T2I) models
+          exhibit a recognizable, model-specific look. We decompose generator outputs along an
+          interpretable, style-specific concept space: <b>LouvreSAE</b>, a sparse autoencoder over
+          CLIP image embeddings whose dictionary is shaped to prioritize stylistic rather than
+          semantic features, and <b>LatentAesthetic</b>, a methodology that uses LouvreSAE to extract
+          and compare T2I generators&rsquo; default aesthetics. Applied to 26 prominent models
+          spanning four years, our method surfaces stable per-generator profiles, a uniform pull
+          toward lifestyle and editorial photography over artistic imagery, and a steady cross-family
+          aesthetic contraction.
         </p>
         <div class="info" style="margin-top:1.2em;">
           <div>
@@ -85,13 +85,15 @@
 <!-- ============================ INTRO ============================ -->
 <div class="container blog main first" id="blog-main">
   <p class="text">
-    Ask two text-to-image models for &ldquo;a courtyard with a well in the center&rdquo; and you get
-    two completely different images &mdash; not merely in semantics and composition but, notably, in
-    style. Users of generative models have long pointed out the distinctive look of individual models
-    &mdash; &ldquo;the Midjourney look,&rdquo; &ldquo;the DALL&middot;E sheen&rdquo; &mdash; and
-    classifiers can tell them apart, yet nobody could say or measure what such aesthetic profiles are
-    made of, and how they evolve. This work answers that, and demonstrates the method across 26
-    prominent T2I models from the last four years.
+    Ask two text-to-image (T2I) models for &ldquo;a pair of leather boots&rdquo; and you get two
+    completely different images &mdash; not merely in semantics and composition but, notably, in
+    style. Users of T2I models have long pointed out the distinctive look of some individual models
+    (e.g., &ldquo;the Midjourney look&rdquo; or &ldquo;the DALL&middot;E sheen&rdquo;), and it has
+    been shown that accurate classifiers can be trained to distinguish among the generators&rsquo;
+    outputs. Yet, no one can say or exactly measure what such aesthetic profiles are made of, and how
+    they evolve over time. Our work fills this gap. To demonstrate the kinds of findings and
+    evaluations one can obtain with this method, we apply it to 26 prominent T2I models from the last
+    four years.
   </p>
 
   <fieldset class="insights-box">
@@ -100,25 +102,27 @@
       <i>LatentAesthetic</i> surfaces findings like these:</p>
     <ul style="margin-left:1.5em;margin-bottom:0;">
       <li style="margin-bottom:.8em;"><b>Models have stable, distinctive aesthetic profiles.</b>
-        Profiling two disjoint halves of a model's images gives nearly identical profiles
-        (coherence 0.989&ndash;0.996), and a classifier reading a single image picks out the model
-        that made it at about nine times chance across the 26 candidates.</li>
+        We verify this by analyzing two disjoint halves of a model's images, yielding nearly
+        identical profiles (coherence of 0.99). Plus, a classifier on top of our aesthetic profiles
+        can distinguish the models at 9&times; chance, when analyzing a prompt/semantics-controlled
+        distribution.</li>
       <li style="margin-bottom:.8em;"><b>Scaling the parameter size of a model preserves the aesthetic profile, but sampler-level interventions can break it.</b>
-        Siblings that differ only in size sit at distances of about 0.005, while a sampler preset alone
-        moved Flux&nbsp;1.1 by 0.0612 &mdash; more than many full version steps.</li>
+        Model siblings that differ only in size have very similar aesthetic profiles (cosine distance
+        of ~10<sup>&minus;3</sup>), while a sampler preset alone moved the two Flux&nbsp;1.1 variants
+        to a distance of ~0.06 &mdash; over an order of magnitude larger.</li>
       <li style="margin-bottom:0;"><b>Model families are converging on a shared aesthetic.</b>
-        The average distance between families dropped from 0.047 at their earliest releases to 0.035
-        at their latest &mdash; a 25% reduction, with 8 of 10 family pairs converging. We report this
-        as a measured trend, not an attributed cause.</li>
+        Over the four years worth of data, the average distance between model families dropped by
+        about 25%, with 8 of 10 family pairs converging.</li>
     </ul>
   </fieldset>
 
-  <h1>Same prompt, a different look every time</h1>
+  <h1>Same prompt, yet a different look every time</h1>
   <p class="text">
-    Before any measurement, the premise. Below is one prompt from the style-neutral bank, sent
-    unchanged to every generator we have a rendering from. Nothing in it names a medium, a period, an
-    artist, a lighting setup or a camera &mdash; it fixes the subject and nothing else. The framing,
-    the palette, the light and the finish are each model’s own.
+    Below, we present a couple of prompts from a style-neutral bank. Nothing in these prompts
+    explicitly indicates a medium, a period, an artist, a lighting setup, or a camera. The framing,
+    the palette, the light, the finish &mdash; all of these are the model&rsquo;s own choices. We
+    call the patterns in how each model chooses to render a subject when stylistic attributes are
+    not controlled its <em>aesthetic defaults</em>.
   </p>
 </div>
 
@@ -126,26 +130,28 @@
   <div class="lv-chips" id="wallChips" role="group" aria-label="Choose a prompt"></div>
   <div class="lv-wall" id="wall"></div>
   <p class="caption">
-    <b>One prompt across the roster.</b> Hover any tile for the generator; switch prompts above.
-    All three come from the content-only bank the profiles are measured on. Coverage varies by prompt
-    &mdash; each shows every generator for which that prompt was rendered, between 16 and 17 of the 26.
+    <b>One prompt across the evaluated models.</b> All three prompts come from the content-only
+    bank on which we measure the profiles.
   </p>
 </div>
 
 <!-- ============================ VOCABULARY ============================ -->
 <div class="container blog main">
-  <h1>A vocabulary of style</h1>
+  <h1><i>LouvreSAE</i>: Our vocabulary of style</h1>
   <p class="text">
-    To describe a look you need words for it. We train a sparse autoencoder over CLIP image
-    embeddings on a mixture that is deliberately art- and style-heavy, so the dictionary spends its
-    capacity on brushwork, lighting, palette, material and composition rather than on object
-    categories. An autointerpretability pass then names each direction and keeps the 807 that
-    describe an aesthetic property.
+    We train a sparse autoencoder over CLIP image embeddings on a mixture that is deliberately
+    art- and style-heavy, so the dictionary focuses its capacity on brushwork, lighting, palette,
+    material, and composition rather than on object categories.
   </p>
   <p class="text">
-    Each concept below is shown with the label it was given, its category, a prototype &mdash; the
-    concept steered onto a plain white sphere, which isolates what the direction contributes from
-    whatever objects happen to co-occur with it &mdash; and four images that activate it strongly.
+    Once trained, we interpret and categorize each concept learned by this SAE, and keep only the
+    807 that describe an aesthetic property.
+  </p>
+  <p class="text">
+    Each concept below is shown with the label it was given, its category, and a prototype
+    sphere &mdash; the concept steered onto a plain white sphere, which isolates what the direction
+    contributes from whatever objects happen to co-occur with it &mdash; and four images that
+    activate it strongly.
   </p>
 </div>
 
@@ -153,24 +159,23 @@
   <div id="vocTable"></div>
   <div class="slide-menu"><ul class="dots" id="vocDots" role="tablist" aria-label="Concept pages"></ul></div>
   <p class="caption">
-    <b>Concepts learned by <i>LouvreSAE</i>.</b> Prototype visualisations and top activating images
-    for eight of the 807 concepts in the aesthetic vocabulary.
+    <b>Examples of concepts learned by <i>LouvreSAE</i>.</b> Prototype visualizations and top
+    activating images for eight of the 807 concepts in the aesthetic vocabulary.
   </p>
 </div>
 
 <!-- ============================ PROFILES ============================ -->
 <div class="container blog main">
-  <h1>Every model has a profile</h1>
+  <h1><i>LatentAesthetic</i>: Extracting an aesthetic profile of each model</h1>
   <p class="text">
-    A generator's <i>default aesthetic profile</i> is its average activation over that vocabulary,
-    measured on 588 content-controlled, style-neutral prompts. The profiles are stable enough to
-    treat as a property of the model: two disjoint halves of a generator's output agree at
-    0.989&ndash;0.996 cosine, and a classifier reading a single image picks the right generator out
-    of 26 about nine times more often than chance.
+    A generator's <i>default aesthetic profile</i> is its average activation over concepts from
+    <i>LouvreSAE</i>, measured over a pool of content-controlled, style-neutral prompts. The profiles
+    are stable enough to treat as a property of the model: two disjoint halves of a generator's
+    output agree at 0.99, and a classifier trained on top of our aesthetic profiles can distinguish
+    the models at 9&times; chance.
   </p>
   <p class="text">
-    Pick any of the 26 generators to see the concepts that define it, each alongside its own
-    generations that carry them.
+    Pick any of the 26 generators to see some of the concepts that distinguish it from others.
   </p>
 </div>
 
@@ -180,35 +185,34 @@
     <div class="lv-prof" id="profList"></div>
   </div>
   <p class="caption">
-    <b>Per-generator profiles.</b> The concepts on which each generator deviates most from the roster
-    average, with <i>z</i> the standardized deviation. Midjourney v6 is painterly and compositional;
-    DALL&middot;E&nbsp;3 is ornamental and dramatically lit; Flux 1.1&nbsp;pro is grainy and screen-like.
+    <b>Examples of generators&rsquo; aesthetic profiles.</b> Shown above are the concepts on which
+    each generator deviates most from the average of all evaluated models, with <i>z</i> as the
+    standardized deviation. Midjourney v6 is painterly and compositional; DALL&middot;E&nbsp;3 is
+    ornamental and dramatically lit; Flux 1.1&nbsp;pro is grainy and screen-like.
   </p>
 </div>
 
 <!-- ============================ ART DRAIN ============================ -->
 <div class="container blog main">
-  <h1>The art is draining out</h1>
+  <h1>Finding 1: The art is draining out</h1>
   <p class="text">
-    A profile in isolation means little, so we ground each one against real-image distributions:
-    curated lifestyle photography on one side, art-historical imagery on the other. Every generator
-    in the roster sits closer to photography, with no exceptions &mdash; but the more interesting
-    question is whether it was always so. Plotting each model against its release date says it was not.
+    We ground profiles in real-image distribution references, such as curated lifestyle
+    photography or art-historical imagery. These help us understand which overall trends the models
+    resemble more. All tested models are closer to the photographic reference.
   </p>
   <p class="text">
-    What has moved is not the photography side. Similarity to <span class="lv-sans">Unsplash</span>
-    is flat across four years (+0.004/yr, not significant). Similarity to
-    <span class="lv-sans">wikiart</span> falls steadily (&minus;0.012/yr, <i>r</i>&nbsp;=&nbsp;&minus;0.40,
-    <i>p</i>&nbsp;=&nbsp;0.03), and the release-year cohort mean drops every single year:
-    0.733&nbsp;&rarr;&nbsp;0.719&nbsp;&rarr;&nbsp;0.711&nbsp;&rarr;&nbsp;0.701. It holds inside the
-    families too &mdash; Stable Diffusion falls monotonically across all five of its releases, and
-    Midjourney, DALL&middot;E, Imagen and Ideogram each end lower than they began.
+    This has changed over time. Over the four years covered by our data, the distance of the
+    generators&rsquo; aesthetic profiles to the photographic style has generally remained flat. What
+    has changed is the distance to the art-historical reference: it falls steadily
+    (&minus;0.012/yr, <i>r</i>&nbsp;=&nbsp;&minus;0.40, <i>p</i>&nbsp;=&nbsp;0.03), and the
+    release-year cohort mean drops every single year: 0.733&nbsp;&rarr;&nbsp;0.719&nbsp;&rarr;&nbsp;0.711&nbsp;&rarr;&nbsp;0.701.
+    It holds inside the model families too.
   </p>
   <p class="text">
     So models did not become more photographic. They became <em>less painterly</em>. The
-    art-historical character that early generators carried &mdash; the flat 2D rendering, the visible
-    brushwork, the illustrative surface &mdash; has been drained out release by release, while the
-    distance to photography stayed where it was.
+    art-historical character that early generators favored &mdash; the flat 2D rendering, the
+    visible brushwork, the illustrative surface, and more &mdash; has been drained out release by
+    release, while the distance to photography stayed pretty much the same.
   </p>
 </div>
 
@@ -216,30 +220,22 @@
   <div class="lv-chart" id="artChart"></div>
   <div class="lv-legend" id="artLegend"></div>
   <p class="caption">
-    <b>Four years of drift, by release date.</b> Two y-axes: similarity to
-    <span class="lv-sans">Unsplash</span> on the left and similarity to
-    <span class="lv-sans">wikiart</span> on the right, each on its own range. Every generator appears
-    once per axis, shaped by family; the heavy lines are least-squares fits over all 26 generators
-    &mdash; hover one to bring its points forward. Photography holds level while art falls away.
+    <b>Aesthetic drift with respect to references.</b> Two y-axes: similarity to photographic
+    style is shown on the left and similarity to art-historical style is shown on the right. The
+    heavy lines are least-squares fits over all 26 generators.
   </p>
 </div>
 
 <!-- ============================ CONVERGENCE ============================ -->
 <div class="container blog main">
-  <h1>The families are drifting together</h1>
+  <h1>Finding 2: The families are drifting together</h1>
   <p class="text">
-    Take the ten pairs of multi-release families and compare their earliest contemporaneous releases
-    against their latest: eight of the ten close, and the average distance falls from 0.047 to 0.035.
-    The two that widen are worth more than a footnote. Both involve DALL&middot;E or Ideogram moving
-    away while everyone else moves in &mdash; and DALL&middot;E&nbsp;2&nbsp;&rarr;&nbsp;3 is the largest
-    within-family step anywhere in the roster, which is why it shows up here as a divergence rather
-    than a drift.
-  </p>
-  <p class="text">
-    Two honest qualifications travel with this. The 2025 cohort widens again, so the contraction is
-    not monotone. And while dropping any one family leaves it positive, the size of the effect
-    depends on Stable Diffusion 1.5 anchoring the early end &mdash; remove it and the earliest-to-latest
-    comparison loses its lever.
+    When we consider the ten pairs of multi-release model families and compare their earliest
+    contemporaneous releases against their latest, eight of the ten get closer and the average
+    cosine distance falls from 0.047 to 0.035. And the two that widen are quite specific: one is the
+    jump between DALL&middot;E&nbsp;2 and 3, which was characterized by a genuine shift in the model
+    aesthetic, and the other is the Ideogram&ndash;Midjourney pair, which widens only marginally
+    (0.052&nbsp;&rarr;&nbsp;0.054).
   </p>
 </div>
 
@@ -250,7 +246,7 @@
       <div class="lv-chart" id="slopeChart"></div>
     </div>
     <div>
-      <p class="lv-eyebrow">Exception: DALL&middot;E 2 &rarr; 3 update</p>
+      <p class="lv-eyebrow">Exception: DALL&middot;E 2 to 3 update</p>
       <div class="lv-chart" id="dalleChart"></div>
     </div>
     <div>
@@ -259,47 +255,52 @@
     </div>
   </div>
   <p class="caption">
-    <b>Cross-family convergence, and the two pairs that resist it.</b> <i>Left:</i> each line is one
-    of the ten pairs of multi-release families, joining the distance between their earliest
-    contemporaneous releases to the distance between their latest. Eight of ten close and the mean
-    falls 0.047&nbsp;&rarr;&nbsp;0.035; the two in red widen. Both involve a family pulling away from
-    the pack &mdash; DALL&middot;E against Stable Diffusion, and Ideogram against Midjourney.
-    <i>Middle:</i> the concepts DALL&middot;E&nbsp;3 shed and picked up relative to DALL&middot;E&nbsp;2,
-    the largest within-family move in the roster. <i>Right:</i> the same shift in pictures &mdash; each
-    pair renders one prompt on both versions (DALL&middot;E&nbsp;3 left, 2 right), chosen for the
-    concept named above it.
+    <b>Cross-family convergence.</b> <i>Left:</i> each line is a pair of multi-release model
+    families, joining the distance between their earliest contemporaneous releases to the distance
+    between their latest. While most get closer, the two in red widen. <i>Middle:</i> the concepts
+    DALL&middot;E&nbsp;3 shed and picked up relative to DALL&middot;E&nbsp;2, the largest
+    within-family move we found. <i>Right:</i> the same shift, but illustrated with qualitative
+    examples based on identical prompts.
   </p>
 </div>
 
 <!-- ============================ CONTROL ============================ -->
 <div class="container blog main">
-  <h1>Controlling a default aesthetic</h1>
+  <h1>Finding 3: The default aesthetic can be controlled</h1>
   <p class="text">
-    A profile that can be measured can also be targeted. We fine-tuned Stable Diffusion&nbsp;1.5
+    A profile that can be measured can also be optimized. We fine-tuned Stable Diffusion&nbsp;1.5
     toward the art-historical reference and re-measured its default at each checkpoint with the
     unchanged pipeline. The photographic-versus-art margin shrank at every checkpoint while prompt
-    adherence stayed flat &mdash; and because the target is a named-concept vector, the monitor also
-    says <em>which</em> properties moved.
+    adherence stayed flat. Because the target is a vector of interpretable concepts from
+    <i>LouvreSAE</i>, this monitor can say which exact properties moved (or didn&rsquo;t) during
+    training. A scalar metric such as CLIPScore or the diffusion loss can only report that training
+    is on track; it cannot name what the model is learning to look like &mdash; in our simulated
+    failure runs, both stayed deceptively healthy while the concept layer exposed that the movement
+    came from degradation artifacts rather than the target style.
   </p>
 </div>
 
 <div class="container blog extra-large gray">
   <div class="lv-chart" id="loraChart"></div>
   <p class="caption">
-    <b>The profile as a training monitor.</b> Photographic-versus-art margin over 2,000 LoRA steps
-    (left axis) against CLIPScore, a standard measure of prompt adherence (right axis). The margin
-    falls 0.114&nbsp;&rarr;&nbsp;0.088, a 23% reduction, while CLIPScore holds at 0.252&nbsp;&plusmn;&nbsp;0.002.
-    Thick brushwork rises 0.18&nbsp;&rarr;&nbsp;0.54; the roster's three rising consensus concepts all fall.
+    <b>Aesthetic profiles as a training monitor.</b> Photographic-versus-art margin over 2,000
+    LoRA steps (left axis) against CLIPScore, a standard measure of prompt adherence (right axis).
+    The margin falls 0.114&nbsp;&rarr;&nbsp;0.088, a 23% reduction, while CLIPScore holds at
+    0.252&nbsp;&plusmn;&nbsp;0.002. Thick brushwork rises 0.18&nbsp;&rarr;&nbsp;0.54.
   </p>
 </div>
 
 <div class="container blog main">
   <p class="text">
-    The same signal works as a data-curation criterion and as a differentiable loss term. Selecting
-    the 6,000 most target-like images from an unlabeled mixed pool surfaced real paintings with zero
-    human labels and moved the model where a random control from the same pool did not; adding the
-    profile directly to the diffusion loss moved it on identical data, with a controllable
-    dose&ndash;response.
+    The same profile can also choose training data, and even act as a training objective. Given a
+    large unlabeled pool of mixed images, we scored every image by how closely its concept
+    activations match the art-historical target and fine-tuned on the 6,000 best matches. With no
+    human labels involved, the selection turned out to be mostly real paintings, and training on it
+    moved the model toward the target &mdash; while training on 6,000 random images from the same
+    pool did not. Alternatively, the profile can enter the training loss directly: adding the
+    distance to the target profile as an extra loss term moved the model toward the target on
+    identical, randomly chosen data, and the strength of the pull scales with the weight on that
+    term.
   </p>
 </div>
 
@@ -307,10 +308,11 @@
 <div class="container blog main">
   <h1>Additional results</h1>
   <p class="text">
-    The instrument was first built for style transfer, and that work is what validates the
-    vocabulary: if the concepts were stylistically vacuous, they could not reproduce a named
-    artist's style or beat a generic CLIP SAE at it. Those results are diagnostic rather than
-    findings, so they live here.
+    While the primary purpose of <i>LouvreSAE</i> and <i>LatentAesthetic</i> is to understand the
+    aesthetic defaults of generative models, the same artifacts and methods can be used for
+    conventional style transfer. These are not main results and we don&rsquo;t seek to make any
+    conclusive claims here &mdash; though we think they illustrate the versatility of the
+    contributed artifacts.
   </p>
   <div class="lv-panels">
     <button class="lv-open" data-dlg="dlg-steer"><span class="plus">+</span> Concept steering</button>
