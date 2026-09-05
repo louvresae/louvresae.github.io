@@ -15,7 +15,7 @@
 
     <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/main_free.css" />
     <link rel="stylesheet" type="text/css" media="all" href="clarity/clarity.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/aesthetics.css?v=81d274fd" />
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/aesthetics.css?v=64b5bd12" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/foundation.min.css">
     <link href="assets/fontawesome-free-7.1.0-web/css/all.min.css" rel="stylesheet">
     <script src="assets/scripts/navbar.js"></script>
@@ -361,8 +361,6 @@
       to sweep that concept from &alpha;<sub>1</sub> to &alpha;<sub>5</sub>; the white sphere is the
       concept's prototype.</p>
     <div id="steerGrid"></div>
-    <p class="lv-note"><b>Where this sits in the paper.</b> Steering is instrumental, not a claim: it
-      is how concept prototypes get visualized and how the vocabulary is sanity-checked.</p>
   </div>
 </dialog>
 
@@ -373,11 +371,9 @@
       reproduces that artist's style well enough to compete with dedicated one-shot style-transfer
       methods &mdash; and a control that swaps in a generic CLIP SAE while holding the inverter fixed
       cannot match it. That is the point of the exercise: it isolates the dictionary as the source of
-      the gain, and rules out the reading that the vocabulary is stylistically vacuous. Hover a
-      steered result to flip back to its content image.</p>
+      the gain, and rules out the reading that the vocabulary is stylistically vacuous.</p>
+    <p class="text">Hover over the steered image to compare.</p>
     <div class="lv-artists" id="artistGrid"></div>
-    <p class="lv-note"><b>Scope.</b> In the paper this is Appendix A.6, framed explicitly as
-      diagnostic and bearing on no claim in the findings.</p>
   </div>
 </dialog>
 
@@ -387,7 +383,7 @@
     <p class="text">Steering through a named artist's profile, scored on ArtBench-10 against dedicated
       one-shot style-transfer baselines and a control that swaps in a generic CLIP SAE while keeping
       the inverter fixed.</p>
-    <div style="overflow-x:auto">
+    <div style="overflow-x:auto;margin-top:14px">
       <table class="bench">
         <thead><tr>
           <th>Method</th><th>Backbone</th><th>VGG Style &darr;</th><th>VGG Content &darr;</th>
@@ -401,9 +397,6 @@
         </tbody>
       </table>
     </div>
-    <p class="lv-note"><b>Reading it.</b> The row that matters is the last pair: same inverter, same
-      steering scheme, only the dictionary swapped. <i>LouvreSAE</i> dominates the generic CLIP SAE on
-      every style-side metric, which is what licenses using its vocabulary for the measurements above.</p>
   </div>
 </dialog>
 
@@ -412,21 +405,35 @@
   <div class="dlg-body">
     <p class="text">Every headline result was re-run under alternative representations, an alternative
       SAE training mixture, an expanded reference panel, and a leave-one-out on the model roster.</p>
+
+    <p class="lv-eyebrow" style="margin:16px 0 8px">Encoder &amp; mixture ablations</p>
     <div style="overflow-x:auto">
-      <table class="bench robtable">
-        <thead><tr><th>Ablation</th><th>Outcome</th></tr></thead>
+      <table class="bench">
+        <thead><tr><th>Ablation</th><th>Painterly art farthest</th><th>Identifiability</th><th>Contraction</th></tr></thead>
         <tbody>
-          <tr><td>SigLIP-2 SAE</td><td>Painterly art farthest for 27/27 models &middot; identifiability 6.9&times; chance &middot; contraction 22.7%</td></tr>
-          <tr><td>DINOv2 SAE</td><td>Painterly art farthest for 27/27 models &middot; identifiability 5.3&times; chance &middot; contraction 12.7%</td></tr>
-          <tr><td>Neutral-mixture SAE</td><td>Painterly art farthest for 27/27 models &middot; identifiability 8.6&times; chance &middot; contraction 20.2%</td></tr>
-          <tr><td>Expanded reference panel</td><td>+10K uncurated Flickr snapshots, +5K COCO photos &mdash; painterly art still farthest for every model</td></tr>
-          <tr><td>Seed variance</td><td>Per-seed profiles agree at cosine &ge; 0.9989 across 9,408 fresh generations</td></tr>
-          <tr><td>Leave-one-family-out</td><td>Cross-family contraction stays positive under every family removal, +11.2% to +33.5%</td></tr>
-          <tr><td>Prompt neutrality</td><td>A CLIP text probe separates our bank from styled prompts at AUROC 0.991 outside the abstract category</td></tr>
-          <tr><td>Honest deviation</td><td>The capacity-vs-sampler ordering reproduces in CLIP-based spaces but not under SigLIP-2 or DINOv2 &mdash; read it as conditional on the CLIP basis</td></tr>
+          <tr><td>SigLIP-2 SAE</td><td>27/27 models</td><td>6.9&times; chance</td><td>22.7%</td></tr>
+          <tr><td>DINOv2 SAE</td><td>27/27 models</td><td>5.3&times; chance</td><td>12.7%</td></tr>
+          <tr><td>Neutral-mixture SAE</td><td>27/27 models</td><td>8.6&times; chance</td><td>20.2%</td></tr>
         </tbody>
       </table>
     </div>
+
+    <p class="lv-eyebrow" style="margin:20px 0 8px">Stability checks</p>
+    <div style="overflow-x:auto">
+      <table class="bench">
+        <thead><tr><th>Check</th><th>Measure</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Expanded reference panel</td><td>painterly art farthest (+10K Flickr, +5K COCO)</td><td>26/26 models</td></tr>
+          <tr><td>Seed variance</td><td>per-seed profile agreement (9,408 images)</td><td>cosine &ge; 0.9989</td></tr>
+          <tr><td>Leave-one-family-out</td><td>cross-family contraction range</td><td>+11.2% to +33.5%</td></tr>
+          <tr><td>Prompt neutrality</td><td>CLIP text-probe AUROC, non-abstract prompts</td><td>0.991</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="lv-note" style="margin-top:16px"><b>Honest deviation.</b> The capacity-vs-sampler ordering
+      reproduces in CLIP-based spaces but not under SigLIP-2 or DINOv2 &mdash; read it as conditional
+      on the CLIP basis.</p>
   </div>
 </dialog>
 
@@ -514,7 +521,7 @@ const keys = Object.keys(D);
          fill="#fff" stroke="#111" stroke-width="2.4"/>
        <text x="114" y="857" text-anchor="middle" font-size="23" font-style="italic"
          font-weight="600" fill="#111" font-family=${JSON.stringify(HN)}>LouvreSAE</text>
-       <text x="222" y="860" text-anchor="start" font-size="28" font-style="normal"
+       <text x="${W-26}" y="857" text-anchor="end" font-size="25" font-style="normal"
          font-weight="400" fill="#5f666c" font-family=${JSON.stringify(HN)}>Hover over any of the concept prototypes.</text>
        ${parts.map(q=>q.arrow).join('')}${axes}${axl}
        <circle cx="${CX}" cy="${CY}" r="10" fill="#111"/>
@@ -638,7 +645,7 @@ document.getElementById('stage').innerHTML =
        fill="#fff" stroke="#111" stroke-width="2.4"/>
      <text x="105" y="741" text-anchor="middle" font-size="23" font-weight="600"
        fill="#111" font-family=${JSON.stringify(HN)}>DALL&#183;E 3</text>
-     <text x="204" y="744" text-anchor="start" font-size="28" font-style="normal"
+     <text x="${W-26}" y="741" text-anchor="end" font-size="25" font-style="normal"
        font-weight="400" fill="#5f666c" font-family=${JSON.stringify(HN)}>Hover over an image below.</text>
      <g>${scaffold()}</g>
      <g id="arrows"></g><g id="spheres"></g><g id="labels2"></g>
@@ -833,9 +840,11 @@ renderProf('midjourney_v6');
   const fitA=`<line x1="${X(ART.fits.w.x0).toFixed(1)}" y1="${YA(ART.fits.w.y0).toFixed(1)}"
       x2="${X(ART.fits.w.x1).toFixed(1)}" y2="${YA(ART.fits.w.y1).toFixed(1)}"`;
   const lab=`
-    <text x="${(X(2022.15)).toFixed(1)}" y="${(YA(0.742)-12).toFixed(1)}" font-size="13" font-weight="600"
+    ${mark('circle', X(2022.15)+2, YA(0.742)-16.5, 4.6, CA, '')}
+    <text x="${(X(2022.15)+13).toFixed(1)}" y="${(YA(0.742)-12).toFixed(1)}" font-size="13" font-weight="600"
       fill="${CA}" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif">similarity to painterly art</text>
-    <text x="${(X(2022.15)).toFixed(1)}" y="${(YU(0.9055)+22).toFixed(1)}" font-size="13" font-weight="600"
+    ${mark('triup', X(2022.15)+2, YU(0.9055)+17.5, 4.6, CU, '')}
+    <text x="${(X(2022.15)+13).toFixed(1)}" y="${(YU(0.9055)+22).toFixed(1)}" font-size="13" font-weight="600"
       fill="${CU}" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif">similarity to photography</text>
     <text transform="translate(20 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle" font-size="12"
       fill="#353535" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif">cosine similarity to photography</text>
@@ -1023,7 +1032,7 @@ if(ag && S.artists){
         <figure class="ar-cell ar-swap" tabindex="0">
           <img src="${a.before}" alt="">
           <img class="t" src="${a.after}" alt="${a.name} steered result">
-          <figcaption>steered &middot; hover to compare</figcaption>
+          <figcaption>steered</figcaption>
         </figure>
       </div>
     </div>`).join('');
