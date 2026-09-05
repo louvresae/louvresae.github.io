@@ -513,10 +513,12 @@ const keys = Object.keys(D);
   document.getElementById('aframe').insertAdjacentHTML('beforeend',
     `<svg viewBox="0 0 ${W} ${H}" role="img"
        aria-label="Ten concept directions radiating from the origin of CLIP space, each rendered on a sphere.">
-       <rect x="${(CX-88).toFixed(1)}" y="826" width="176" height="46" rx="23"
+       <rect x="26" y="826" width="176" height="46" rx="23"
          fill="#fff" stroke="#111" stroke-width="2.4"/>
-       <text x="${CX}" y="857" text-anchor="middle" font-size="23" font-style="italic"
+       <text x="114" y="857" text-anchor="middle" font-size="23" font-style="italic"
          font-weight="600" fill="#111" font-family=${JSON.stringify(HN)}>LouvreSAE</text>
+       <text x="220" y="856" text-anchor="start" font-size="16" fill="#5f666c"
+         font-family=${JSON.stringify(HN)}>Hover over any of the concept prototypes.</text>
        ${parts.map(q=>q.arrow).join('')}${axes}${axl}
        <circle cx="${CX}" cy="${CY}" r="10" fill="#111"/>
        ${parts.map(q=>q.img).join('')}${parts.map(q=>q.label).join('')}
@@ -639,6 +641,8 @@ document.getElementById('stage').innerHTML =
        fill="#fff" stroke="#111" stroke-width="2.4"/>
      <text x="105" y="741" text-anchor="middle" font-size="23" font-weight="600"
        fill="#111" font-family=${JSON.stringify(HN)}>DALL&#183;E 3</text>
+     <text x="202" y="740" text-anchor="start" font-size="16" fill="#5f666c"
+       font-family=${JSON.stringify(HN)}>Hover over an image below.</text>
      <g>${scaffold()}</g>
      <g id="arrows"></g><g id="spheres"></g><g id="labels2"></g>
    </svg>`;
