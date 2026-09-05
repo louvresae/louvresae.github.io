@@ -15,7 +15,7 @@
 
     <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/main_free.css" />
     <link rel="stylesheet" type="text/css" media="all" href="clarity/clarity.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/aesthetics.css?v=9dc5ffa7" />
+    <link rel="stylesheet" type="text/css" media="all" href="assets/stylesheets/aesthetics.css?v=81d274fd" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/foundation.min.css">
     <link href="assets/fontawesome-free-7.1.0-web/css/all.min.css" rel="stylesheet">
     <script src="assets/scripts/navbar.js"></script>
@@ -412,23 +412,20 @@
   <div class="dlg-body">
     <p class="text">Every headline result was re-run under alternative representations, an alternative
       SAE training mixture, an expanded reference panel, and a leave-one-out on the model roster.</p>
-    <div class="rob-grid">
-      <div class="rob-card"><span class="rob-t">SigLIP-2 SAE</span>
-        <span class="rob-d">Painterly art farthest for 27/27 models &middot; identifiability 6.9&times; chance &middot; contraction 22.7%</span></div>
-      <div class="rob-card"><span class="rob-t">DINOv2 SAE</span>
-        <span class="rob-d">Painterly art farthest for 27/27 models &middot; identifiability 5.3&times; chance &middot; contraction 12.7%</span></div>
-      <div class="rob-card"><span class="rob-t">Neutral-mixture SAE</span>
-        <span class="rob-d">Painterly art farthest for 27/27 models &middot; identifiability 8.6&times; chance &middot; contraction 20.2%</span></div>
-      <div class="rob-card"><span class="rob-t">Expanded reference panel</span>
-        <span class="rob-d">+10K uncurated Flickr snapshots, +5K COCO photos &mdash; painterly art still farthest for every model</span></div>
-      <div class="rob-card"><span class="rob-t">Seed variance</span>
-        <span class="rob-d">Per-seed profiles agree at cosine &ge; 0.9989 across 9,408 fresh generations</span></div>
-      <div class="rob-card"><span class="rob-t">Leave-one-family-out</span>
-        <span class="rob-d">Cross-family contraction stays positive under every family removal, +11.2% to +33.5%</span></div>
-      <div class="rob-card"><span class="rob-t">Prompt neutrality</span>
-        <span class="rob-d">A CLIP text probe separates our bank from styled prompts at AUROC 0.991 outside the abstract category</span></div>
-      <div class="rob-card"><span class="rob-t">The one honest deviation</span>
-        <span class="rob-d">The capacity-vs-sampler ordering reproduces in CLIP-based spaces but not under SigLIP-2 or DINOv2 &mdash; read it as conditional on the CLIP basis</span></div>
+    <div style="overflow-x:auto">
+      <table class="bench robtable">
+        <thead><tr><th>Ablation</th><th>Outcome</th></tr></thead>
+        <tbody>
+          <tr><td>SigLIP-2 SAE</td><td>Painterly art farthest for 27/27 models &middot; identifiability 6.9&times; chance &middot; contraction 22.7%</td></tr>
+          <tr><td>DINOv2 SAE</td><td>Painterly art farthest for 27/27 models &middot; identifiability 5.3&times; chance &middot; contraction 12.7%</td></tr>
+          <tr><td>Neutral-mixture SAE</td><td>Painterly art farthest for 27/27 models &middot; identifiability 8.6&times; chance &middot; contraction 20.2%</td></tr>
+          <tr><td>Expanded reference panel</td><td>+10K uncurated Flickr snapshots, +5K COCO photos &mdash; painterly art still farthest for every model</td></tr>
+          <tr><td>Seed variance</td><td>Per-seed profiles agree at cosine &ge; 0.9989 across 9,408 fresh generations</td></tr>
+          <tr><td>Leave-one-family-out</td><td>Cross-family contraction stays positive under every family removal, +11.2% to +33.5%</td></tr>
+          <tr><td>Prompt neutrality</td><td>A CLIP text probe separates our bank from styled prompts at AUROC 0.991 outside the abstract category</td></tr>
+          <tr><td>Honest deviation</td><td>The capacity-vs-sampler ordering reproduces in CLIP-based spaces but not under SigLIP-2 or DINOv2 &mdash; read it as conditional on the CLIP basis</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </dialog>
@@ -995,8 +992,12 @@ if(sg && S.steer){
       <figcaption class="sc-head"><span class="sc-name">${c.name}</span>
         <span class="sc-a" id="sa-${i}">&alpha;&#8321;</span></figcaption>
       <div class="sc-imgs">
-        ${c.proto?`<img class="sc-proto" src="${c.proto}" alt="${c.name} prototype">`:''}
-        <img class="sc-view" id="sv-${i}" src="${c.seq[0]}" alt="${c.name} steering result">
+        <span class="sc-cell">
+          ${c.proto?`<img class="sc-proto" src="${c.proto}" alt="${c.name} prototype">`:''}
+          <span class="sc-lab">prototype</span></span>
+        <span class="sc-cell">
+          <img class="sc-view" id="sv-${i}" src="${c.seq[0]}" alt="${c.name} steering result">
+          <span class="sc-lab">steered</span></span>
       </div>
       <input type="range" min="0" max="4" step="1" value="0" data-i="${i}"
         aria-label="${c.name} steering intensity">
@@ -1014,15 +1015,17 @@ const ag=document.getElementById('artistGrid');
 if(ag && S.artists){
   ag.className='artist-rows';
   ag.innerHTML = S.artists.map(a=>`
-    <div class="ar-row">
-      <span class="ar-name">${a.name}</span>
-      <figure class="ar-cell"><img src="${a.ref}" alt="${a.name} reference painting"><figcaption>reference</figcaption></figure>
-      <figure class="ar-cell"><img src="${a.before}" alt="content image"><figcaption>content</figcaption></figure>
-      <figure class="ar-cell ar-swap" tabindex="0">
-        <img src="${a.before}" alt="">
-        <img class="t" src="${a.after}" alt="${a.name} steered result">
-        <figcaption>steered &middot; hover to compare</figcaption>
-      </figure>
+    <div class="ar-block">
+      <div class="ar-name">${a.name}</div>
+      <div class="ar-imgs">
+        <figure class="ar-cell"><img src="${a.ref}" alt="${a.name} reference painting"><figcaption>reference</figcaption></figure>
+        <figure class="ar-cell"><img src="${a.before}" alt="content image"><figcaption>content</figcaption></figure>
+        <figure class="ar-cell ar-swap" tabindex="0">
+          <img src="${a.before}" alt="">
+          <img class="t" src="${a.after}" alt="${a.name} steered result">
+          <figcaption>steered &middot; hover to compare</figcaption>
+        </figure>
+      </div>
     </div>`).join('');
 }
 document.querySelectorAll('[data-dlg]').forEach(b=>
