@@ -295,7 +295,10 @@
     large unlabeled pool of mixed images, we scored every image by how closely its concept
     activations match the art-historical target and fine-tuned on the 6,000 best matches. With no
     human labels involved, the selection turned out to be mostly real paintings, and training on it
-    moved the model toward the target &mdash; while none of the baselines or controls did. Alternatively, the profile can enter the training loss directly: adding the
+    moved the model toward the target &mdash; while none of the baselines or controls did.
+  </p>
+  <p class="text">
+    Alternatively, the profile can enter the training loss directly: adding the
     distance to the target profile as an extra loss term moved the model toward the target on
     identical, randomly chosen data, and the strength of the pull scales with the weight on that
     term.
