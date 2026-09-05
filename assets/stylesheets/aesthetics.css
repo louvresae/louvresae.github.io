@@ -107,7 +107,7 @@
 .lv-cell:hover figcaption,.lv-cell:focus-within figcaption{opacity:1}
 
 /* ---------- vocabulary cards ---------- */
-.voc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px 26px}
+.voc-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;padding-top:22px}
 .voc-card{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:14px 16px;min-width:0}
 .vc-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
 .vc-imgs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;min-width:0}
@@ -117,7 +117,7 @@
 .vname{font-family:var(--sans);font-weight:600;font-size:16px;line-height:1.3;display:block}
 .vcat{font-family:var(--sans);font-size:10.5px;font-weight:600;letter-spacing:.06em;
   text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
-.voc-proto{background:#f2f4f5;outline:1px solid var(--hair)}
+.voc-proto{background:#f2f4f5;border:2px solid #1C365F;box-shadow:0 0 0 1.5px #1C365F;box-sizing:border-box}
 .lv-voc{width:100%;border-collapse:collapse}
 .lv-voc th{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-3);padding:0 10px 10px;text-align:center;border:0}
@@ -196,12 +196,14 @@ input[type=range]{accent-color:var(--navy);width:100%;max-width:440px;margin:0}
 .lv-open .plus{color:var(--navy);font-weight:700;font-size:15px}
 .lv-open:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
 dialog{border:1px solid var(--rule);border-radius:10px;padding:0;background:#fff;color:var(--ink);
-  max-width:min(920px,94vw);width:100%;box-shadow:0 34px 90px -34px rgba(12,18,26,.55)}
+  max-width:min(920px,94vw);width:100%;height:min(660px,86vh);
+  box-shadow:0 34px 90px -34px rgba(12,18,26,.55)}
+dialog[open]{display:flex;flex-direction:column}
 dialog::backdrop{background:rgba(14,18,22,.55)}
 .dlg-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
   padding:20px 24px 14px;border-bottom:1px solid var(--hair)}
 .dlg-head h2{padding:0 !important;font-size:21px !important}
-.dlg-body{padding:18px 24px 24px;max-height:72vh;overflow:auto}
+.dlg-body{padding:18px 24px 24px;flex:1;min-height:0;overflow:auto}
 .dlg-body p{font-size:16.5px}
 .xbtn{appearance:none;border:0;background:transparent;color:var(--ink-3);font-size:24px;
   line-height:1;cursor:pointer;padding:2px 6px;margin:0;height:auto}
@@ -231,8 +233,38 @@ dialog::backdrop{background:rgba(14,18,22,.55)}
 .ar-swap .t{position:absolute;top:0;left:0;transition:opacity .3s ease}
 .ar-swap:hover .t,.ar-swap:focus .t{opacity:0}
 @media screen and (max-width:700px){.ar-row{grid-template-columns:1fr 1fr;gap:8px}}
+table.bench{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:13.5px}
+table.bench th{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-3);text-align:center;padding:0 10px 9px;
+  border-bottom:1px solid var(--rule)}
+table.bench th:first-child{text-align:left}
+table.bench td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--hair);
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+table.bench td:first-child{text-align:left}
+table.bench tr:last-child td{border-bottom:0}
+table.bench tbody tr{background:transparent !important}
+table.bench tr.ours td{background:rgba(28,54,95,.07)}
+.rob-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.rob-card{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:13px 16px;
+  display:flex;flex-direction:column;gap:5px;min-width:0}
+.rob-t{font-family:var(--sans);font-weight:600;font-size:14px;color:var(--ink)}
+.rob-d{font-family:var(--sans);font-size:13px;line-height:1.5;color:var(--ink-2)}
+@media screen and (max-width:640px){.rob-grid{grid-template-columns:1fr}}
 .lv-artists{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
 .lv-artists img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;padding:0 !important}
+
+/* ---------- navbar (injected by navbar.js) ---------- */
+.nav-container{
+  box-shadow:0 1px 6px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.6) !important;
+}
+.nav-container .nav-item,
+.nav-container .current-section,
+.nav-container .nav-list li{
+  font-family:'HelveticaNeue','Helvetica Neue',Helvetica,Arial,sans-serif !important;
+}
+
+/* ---------- footer ---------- */
+footer .container p{text-align:center}
 
 /* ---------- misc ---------- */
 .lv-note{font-family:var(--sans);font-size:13px;line-height:1.55;color:var(--ink-3);
